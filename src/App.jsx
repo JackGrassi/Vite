@@ -3,7 +3,7 @@ import './App.css'
 
 function FilterableProductTable() {
 
-  const [filtertext, setFilterText] = useState('');
+  const [filterText, setFilterText] = useState('');
   const[inStockOnly, setInStockOnly] = useState(false);
 
   let prodotti= [
@@ -17,22 +17,24 @@ function FilterableProductTable() {
   return(
     <div class="FilterableProductTable">
       <SearchBar
-      filtertext={filtertext} 
-      inStockOnly={inStockOnly}/>
+      filterText={filterText} 
+      inStockOnly={inStockOnly}
+      setFilterText={setFilterText}
+      setInStockOnly={setInStockOnly}/>
       <ProductTable prodotti={prodotti}
-       filtertext={filtertext} 
+       filterText={filterText} 
        inStockOnly={inStockOnly}/>
     </div>
   )
  
 }
 
-function SearchBar() {
+function SearchBar({ filterText, inStockOnly, setFilterText, setInStockOnly }) {
   return (
     <div class="SearchBar">
-      <input type="text" id="search" placeholder="Search..." />
+      <input type="text" id="search" placeholder="Search..." value={filterText} onChange={ e => setFilterText(e.target.value)} /> 
       <label>
-        <input type="checkbox" id="instock"/>
+        <input type="checkbox" id="instock" checked={inStockOnly} onChange={ e => setInStockOnly(e.target.checked)}/>
         Only show products in stock
       </label>
     </div>
@@ -59,9 +61,14 @@ function ProductCategoryRow({categoria}){
     </div>
   )
 }
-function ProductTable({prodotti}){
+function ProductTable({prodotti, filterText, inStockOnly}){
   let righe=[];
-
+  if (inStockOnly){
+    prodotti = prodotti.filter(p=> p.stocked === true)
+  }
+  if (filterText !== ''){
+    prodotti= prodotti.filter(p=> p.name.toLowerCase().includes (filterText.toLowerCase()))
+  }
   righe.push(<ProductCategoryRow categoria="Fruits"/>);
   let fruits = prodotti.filter (p => p.category === "Fruits");
   fruits.forEach(p=> righe.push(<ProductRow nome={p.name}prezzo={p.price} stock={p.stocked}/>));
